@@ -4,17 +4,7 @@ import { persist } from 'zustand/middleware';
 const useStore = create(
   persist(
     (set, get) => ({
-      // User state managed by AuthContext now
-      
-      // Listings state
-      listings: [],
-      currentListing: null,
-      
-      // UI state
-      isLoading: false,
-      error: null,
-      
-      // Settings (now user-specific, stored in localStorage)
+      // Settings state
       settings: {
         theme: 'light',
         notifications: true,
@@ -22,24 +12,40 @@ const useStore = create(
         darkMode: false,
         openaiApiKey: '',
         aiSettings: {
-          listingStyle: 'casual',
+          listingStyle: 'casual', // 'casual', 'professional', or 'custom'
           customPrompt: '',
           removeEmojis: false
         }
       },
-      
+
+      // Listings state
+      listings: [],
+      currentListing: null,
+
+      // UI state
+      isLoading: false,
+      error: null,
+
       // Actions
+      updateSettings: (newSettings) => set((state) => ({
+        settings: {
+          ...state.settings,
+          ...newSettings
+        }
+      })),
+
+      // Other actions
       setLoading: (isLoading) => set({ isLoading }),
       setError: (error) => set({ error }),
       clearError: () => set({ error: null }),
-      
+
       // Listing actions
       setListings: (listings) => set({ listings }),
       addListing: (listing) => set((state) => ({
         listings: [...state.listings, {
           ...listing,
           id: listing.id || Date.now().toString(),
-          type: listing.type || 'general' // Ensure type is always set
+          type: listing.type || 'general'
         }]
       })),
       updateListing: (id, updates) => set((state) => ({
@@ -52,13 +58,8 @@ const useStore = create(
       })),
       setCurrentListing: (listing) => set({ currentListing: listing }),
       clearCurrentListing: () => set({ currentListing: null }),
-      
-      // Settings actions
-      updateSettings: (newSettings) => set((state) => ({
-        settings: { ...state.settings, ...newSettings }
-      })),
-      
-      // Stats from local listings
+
+      // Stats getter
       getStats: () => {
         const state = get();
         return {
@@ -68,12 +69,20 @@ const useStore = create(
           soldListings: state.listings.filter(l => l.status === 'sold').length,
         };
       },
+
+      // User state
+      user: null,
+      isAuthenticated: false,
+      setUser: (user) => set({ user, isAuthenticated: !!user }),
+      clearUser: () => set({ user: null, isAuthenticated: false }),
     }),
     {
       name: 'shelfie-storage',
       partialize: (state) => ({
         listings: state.listings,
         settings: state.settings,
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
       }),
     }
   )

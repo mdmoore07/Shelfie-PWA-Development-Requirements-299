@@ -7,14 +7,12 @@ import { validateImageFile, createImagePreview } from '../../services/imageServi
 
 const { FiCamera, FiUpload, FiX, FiImage } = FiIcons;
 
-const PhotoUpload = ({ photos, onPhotosChange, maxPhotos = 4 }) => {
+const PhotoUploader = ({ photos = [], onPhotosChange, maxPhotos = 4, listingId }) => {
   const [dragActive, setDragActive] = useState(false);
-  const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
 
   const handleFiles = async (files) => {
-    setError(null);
     const fileArray = Array.from(files);
     const validFiles = [];
     
@@ -25,14 +23,11 @@ const PhotoUpload = ({ photos, onPhotosChange, maxPhotos = 4 }) => {
         validFiles.push({ file, preview });
       } catch (error) {
         console.error('Invalid file:', error.message);
-        setError(error.message);
       }
     }
     
-    if (validFiles.length > 0) {
-      const newPhotos = [...photos, ...validFiles].slice(0, maxPhotos);
-      onPhotosChange(newPhotos);
-    }
+    const newPhotos = [...photos, ...validFiles].slice(0, maxPhotos);
+    onPhotosChange(listingId, newPhotos);
   };
 
   const handleDrop = (e) => {
@@ -53,31 +48,15 @@ const PhotoUpload = ({ photos, onPhotosChange, maxPhotos = 4 }) => {
 
   const removePhoto = (index) => {
     const newPhotos = photos.filter((_, i) => i !== index);
-    onPhotosChange(newPhotos);
+    onPhotosChange(listingId, newPhotos);
   };
 
   const canAddMore = photos.length < maxPhotos;
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">
-          Photos ({photos.length}/{maxPhotos})
-        </h3>
-        <span className="text-sm text-gray-500">
-          {photos.length === 0 ? 'Add at least 1 photo' : 'Looking good!'}
-        </span>
-      </div>
-
-      {/* Error Message */}
-      {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-sm text-red-700">{error}</p>
-        </div>
-      )}
-
+    <div className="space-y-3">
       {/* Photo Grid */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         <AnimatePresence>
           {photos.map((photo, index) => (
             <motion.div
@@ -121,9 +100,7 @@ const PhotoUpload = ({ photos, onPhotosChange, maxPhotos = 4 }) => {
             >
               <div className="h-full flex flex-col items-center justify-center p-4 text-center">
                 <SafeIcon icon={FiImage} className="w-8 h-8 text-gray-400 mb-2" />
-                <p className="text-sm text-gray-600 mb-2">
-                  Drop photo here
-                </p>
+                <p className="text-sm text-gray-600 mb-2">Drop photo here</p>
                 <div className="flex space-x-2">
                   <button
                     onClick={() => cameraInputRef.current?.click()}
@@ -143,28 +120,6 @@ const PhotoUpload = ({ photos, onPhotosChange, maxPhotos = 4 }) => {
           )}
         </AnimatePresence>
       </div>
-
-      {/* Action Buttons */}
-      {photos.length === 0 && (
-        <div className="flex space-x-3">
-          <Button
-            onClick={() => cameraInputRef.current?.click()}
-            variant="primary"
-            fullWidth
-            icon={FiCamera}
-          >
-            Take Photo
-          </Button>
-          <Button
-            onClick={() => fileInputRef.current?.click()}
-            variant="outline"
-            fullWidth
-            icon={FiUpload}
-          >
-            Upload
-          </Button>
-        </div>
-      )}
 
       {/* Hidden File Inputs */}
       <input
@@ -187,4 +142,4 @@ const PhotoUpload = ({ photos, onPhotosChange, maxPhotos = 4 }) => {
   );
 };
 
-export default PhotoUpload;
+export default PhotoUploader;

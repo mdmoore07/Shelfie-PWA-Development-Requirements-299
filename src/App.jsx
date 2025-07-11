@@ -3,6 +3,7 @@ import { AnimatePresence } from 'framer-motion';
 import { AuthProvider } from './contexts/AuthContext';
 import HomePage from './pages/HomePage';
 import CreatePage from './pages/CreatePage';
+import BulkCreatePage from './pages/BulkCreatePage';
 import ListingsPage from './pages/ListingsPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import ProfilePage from './pages/ProfilePage';
@@ -19,6 +20,7 @@ function App() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/create" element={<CreatePage />} />
+              <Route path="/bulk-create" element={<BulkCreatePage />} />
               <Route path="/listings" element={<ListingsPage />} />
               <Route path="/analytics" element={<AnalyticsPage />} />
               <Route path="/profile" element={<ProfilePage />} />
